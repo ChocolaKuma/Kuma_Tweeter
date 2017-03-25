@@ -6,8 +6,8 @@ import os
 import urllib.request
 import keys
 
-
-#webbrowser.open_new(URL)
+#Api refrance
+#http://tweepy.readthedocs.io/en/v3.5.0/api.html
 
 usedacount = keys.usedacount
 access_token = keys.access_token
@@ -39,7 +39,7 @@ class POSIS(tk.Tk):
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
         self.frames = {}
-        for F in (StartPage, Tweet, AccountStats):
+        for F in (StartPage, Tweet,AccountInfo, AccountStats):
 
             frame = F(container, self)
 
@@ -76,10 +76,12 @@ class Tweet(tk.Frame):
         button1 = ttk.Button(self, text="Tweet",
                             command=lambda: controller.show_frame(Tweet))
         button1.grid(row=2,column=1)
-        button2 = ttk.Button(self, text="Account Stats",
-                            command=lambda: controller.show_frame(AccountStats))
+        button2 = ttk.Button(self, text="Account Info",
+                            command=lambda: controller.show_frame(AccountInfo))
         button2.grid(row=2,column=2)
-        
+        button3 = ttk.Button(self, text="Account Stats",
+                            command=lambda: controller.show_frame(AccountStats))
+        button3.grid(row=2,column=3)         
 ##         TODO somthing Buggy Here "(widgetName, self._w) + extra + self._options(cnf))
 ##_tkinter.TclError: image "avi.png" doesn't exist""
 ##
@@ -89,24 +91,27 @@ class Tweet(tk.Frame):
 ##        l = tk.Label(self, image="avi.png").grid(row=4,column=1)
 ##
         global e
-        e = ttk.Entry(self).grid(row=5,column=1,columnspan=2)
-        button3 = ttk.Button(self, text="Tweet",
-                            command=lambda: tweetit(e))
-        button3.grid(row=5,column=3)        
+        e = ttk.Entry(self)
+        e.grid(row=5,column=1,columnspan=2)
+        button4 = ttk.Button(self, text="Tweet",
+                            command=lambda: tweetit())
+        button4.grid(row=5,column=3)        
 
 
         
         
-class AccountStats(tk.Frame):
+class AccountInfo(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         button1 = ttk.Button(self, text="Tweet",
                             command=lambda: controller.show_frame(Tweet))
         button1.grid(row=2,column=1)
-        button2 = ttk.Button(self, text="Account Stats",
-                            command=lambda: controller.show_frame(AccountStats))
+        button2 = ttk.Button(self, text="Account Info",
+                            command=lambda: controller.show_frame(AccountInfo))
         button2.grid(row=2,column=2)
-        
+        button3 = ttk.Button(self, text="Account Stats",
+                            command=lambda: controller.show_frame(AccountStats))
+        button3.grid(row=2,column=3)        
         label = tk.Label(self, text="Handle: "+UserName, font=MED_FONT)
         label.grid(row=3,column=1,columnspan=3)
         #TODO add Token output to show if it is correct
@@ -118,15 +123,47 @@ class AccountStats(tk.Frame):
         label3.grid(row=7,column=1,columnspan=3)
         label4 = tk.Label(self, text="consumer_secret: "+consumer_secret, font=MED_FONT)
         label4.grid(row=8,column=1,columnspan=3)
-def tweetit(tweet):
+        
+def tweetit():
     print("Message Tweet")
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
     api = tweepy.API(auth)
-    #TODONEXT fix so it tweets something other than none
-    #api.update_status(tweet)
+    tweet = e.get()
     print(tweet)
+    api.update_status(tweet)
+    
+class AccountStats(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+        auth.set_access_token(access_token, access_token_secret)
+        api = tweepy.API(auth)
+        user = api.me()
+        button1 = ttk.Button(self, text="Tweet",
+                            command=lambda: controller.show_frame(Tweet))
+        button1.grid(row=2,column=1)
+        button2 = ttk.Button(self, text="Account Info",
+                            command=lambda: controller.show_frame(AccountInfo))
+        button2.grid(row=2,column=2)
+        button3 = ttk.Button(self, text="Account Stats",
+                            command=lambda: controller.show_frame(AccountStats))
+        button3.grid(row=2,column=3)
+        Nickname = ""
+        Handle = "@"+user.screen_name
+        Following = 0 #Not supported in tweepy
+        Followers = user.followers_count
+        Following = str(Following)
+        Followers = str(Followers)
 
+        label1 = tk.Label(self, text="Nickname: "+Nickname, font=MED_FONT)
+        label1.grid(row=3,column=1,columnspan=3)
+        label2 = tk.Label(self, text="Handle: "+Handle, font=MED_FONT)
+        label2.grid(row=4,column=1,columnspan=3)        
+        label3 = tk.Label(self, text="Following: "+Following, font=MED_FONT)
+        label3.grid(row=5,column=1,columnspan=3)
+        label4 = tk.Label(self, text="Followers: "+Followers, font=MED_FONT)
+        label4.grid(row=6,column=1,columnspan=3)   
 app = POSIS()
 app.mainloop()
 #http://pythoncentral.io/introduction-to-tweepy-twitter-for-python/
